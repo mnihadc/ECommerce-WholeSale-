@@ -1,8 +1,16 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "./Components/Header";
+
 function App() {
   return (
-    <div className="bg-red-500">
-      Click on the Vite and React logos to learn more
-    </div>
+    <BrowserRouter>
+      <Header />
+      <div className="pb-7 pt-5 bg-black">
+        <Routes>
+          <Route></Route>
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
