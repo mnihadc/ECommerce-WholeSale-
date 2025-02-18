@@ -10,12 +10,16 @@ export default function Header() {
       {/* Desktop & Mobile Header */}
       <div className="flex justify-between items-center p-4 container mx-auto">
         <div className="flex items-center gap-2">
-          <img src="/grocery-logo.png" alt="logo" className="h-8" />
-          <span className="text-xl font-bold">MNC</span>
+          <img
+            src="https://thumbs.dreamstime.com/b/web-179112724.jpg"
+            alt="logo"
+            className="h-8"
+          />
+          <span className="text-xl font-bold ">MNC</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-2 ">
           {/* Pages Dropdown */}
           <div className="relative">
             <button
