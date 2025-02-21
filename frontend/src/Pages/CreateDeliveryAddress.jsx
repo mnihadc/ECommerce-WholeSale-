@@ -107,12 +107,6 @@ const CreateDeliveryAddress = () => {
         </select>
 
         <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Select Google Map Location"
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
           type="text"
           value={mapUrl}
           onChange={(e) => setMapUrl(e.target.value)}

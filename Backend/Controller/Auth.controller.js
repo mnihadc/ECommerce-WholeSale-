@@ -151,3 +151,37 @@ export const updateProfile = async (req, res) => {
       .json({ message: "Failed to update profile", error: error.message });
   }
 };
+
+export const createDeliveryAddress = async (req, res) => {
+  try {
+    const token = req.cookies.authToken;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Validate if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const newAddress = new DeliveryAddress(req.body);
+    await newAddress.save();
+
+    res.status(201).json({
+      message: "Delivery Address Created Successfully",
+      address: newAddress,
+    });
+  } catch (error) {
+    console.error("Error creating delivery address:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
