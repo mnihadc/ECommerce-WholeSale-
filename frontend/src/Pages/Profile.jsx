@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { toast, Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 import {
   signoutUserStart,
   signoutUserSuccess,
@@ -27,7 +27,7 @@ const Profile = () => {
     })
       .then((res) => res.json())
       .then((data) => setUserData(data))
-      .catch(() => toast.error("Failed to fetch profile!"));
+      .catch(() => Swal.fire("Error", "Failed to fetch profile!", "error"));
   }, []);
 
   const handleChange = (e) => {
@@ -48,45 +48,57 @@ const Profile = () => {
       if (response.ok) {
         const updatedData = await response.json();
         setUserData(updatedData);
-        toast.success("Profile updated successfully!");
         setEditMode(false);
+        Swal.fire("Success", "Profile updated successfully!", "success");
       } else {
-        toast.error("Failed to update profile!");
+        Swal.fire("Error", "Failed to update profile!", "error");
       }
     } catch (error) {
-      toast.error("Something went wrong!", error);
+      Swal.fire("Error", "Something went wrong!", "error", error);
     }
   };
 
   const handleLogout = async () => {
-    try {
-      dispatch(signoutUserStart());
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, log out!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          dispatch(signoutUserStart());
 
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+          const response = await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include",
+          });
 
-      if (response.ok) {
-        dispatch(signoutUserSuccess());
-        localStorage.removeItem("token");
-        toast.success("Logged out successfully!");
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1500);
-      } else {
-        dispatch(signoutUserFailure("Logout failed!"));
-        toast.error("Logout failed!");
+          if (response.ok) {
+            dispatch(signoutUserSuccess());
+            localStorage.removeItem("token"); // Clear stored token
+            Swal.fire("Logged Out", "You have been logged out.", "success");
+
+            setTimeout(() => {
+              window.location.href = "/login"; // Redirect after 1.5 seconds
+            }, 1500);
+          } else {
+            dispatch(signoutUserFailure("Logout failed!"));
+            Swal.fire("Error", "Logout failed!", "error");
+          }
+        } catch (error) {
+          dispatch(signoutUserFailure(error.message));
+          Swal.fire("Error", "Something went wrong!", "error");
+        }
       }
-    } catch (error) {
-      dispatch(signoutUserFailure(error.message));
-      toast.error("Something went wrong!");
-    }
+    });
   };
 
   return (
     <div className="min-h-screen bg-gray-800 text-white p-8 flex justify-center items-center pt-13">
-      <Toaster position="top-right" />
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Profile Card */}
         <div className="bg-gray-700 p-8 rounded-lg flex flex-col items-center shadow-lg">
@@ -158,7 +170,7 @@ const Profile = () => {
                   type="button"
                   className="bg-blue-600 px-6 py-2 rounded-lg shadow-md hover:bg-blue-500"
                   onClick={() => {
-                    toast.info("You can now edit your profile.");
+                    Swal.fire("Info", "You can now edit your profile.", "info");
                     setEditMode(true);
                   }}
                 >
@@ -174,7 +186,7 @@ const Profile = () => {
               )}
               <button
                 type="button"
-                className="bg-amber-500 px-4 py-2 rounded"
+                className="bg-red-600 px-4 py-2 rounded-lg shadow-md hover:bg-red-500"
                 onClick={handleLogout}
               >
                 Logout
