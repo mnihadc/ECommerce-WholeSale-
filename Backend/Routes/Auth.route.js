@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   signUp,
+  updateProfile,
 } from "../Controller/Auth.controller.js";
 
 const router = express.Router();
@@ -13,5 +14,6 @@ router.post("/signup", signUp);
 router.post("/login", loginUser);
 router.get("/profile", getUserProfile);
 router.post("/logout", logoutUser);
+router.put("/update-profile", updateProfile);
 
 export default router;

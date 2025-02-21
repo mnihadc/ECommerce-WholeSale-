@@ -70,6 +70,7 @@ export default function Header() {
             >
               Pages <ChevronDown className="w-4 h-4" />
             </button>
+
             {isMenuOpen && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -77,6 +78,9 @@ export default function Header() {
                 exit={{ opacity: 0, y: -10 }}
                 className="absolute left-0 mt-2 w-40 bg-white text-gray-900 shadow-lg rounded-lg"
               >
+                <a href="/home" className="block px-4 py-2 hover:bg-gray-100">
+                  Home
+                </a>
                 <a href="#about" className="block px-4 py-2 hover:bg-gray-100">
                   About
                 </a>

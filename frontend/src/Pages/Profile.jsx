@@ -18,6 +18,8 @@ const Profile = () => {
     age: "",
     createdAt: "",
   });
+
+  const [prevUserData, setPrevUserData] = useState(null); // Store previous data
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
@@ -56,6 +58,17 @@ const Profile = () => {
     } catch (error) {
       Swal.fire("Error", "Something went wrong!", "error", error);
     }
+  };
+
+  const handleEdit = () => {
+    setPrevUserData(userData); // Store current data before editing
+    setEditMode(true);
+    Swal.fire("Info", "You can now edit your profile.", "info");
+  };
+
+  const handleCancel = () => {
+    setUserData(prevUserData); // Restore previous data
+    setEditMode(false);
   };
 
   const handleLogout = async () => {
@@ -169,20 +182,26 @@ const Profile = () => {
                 <button
                   type="button"
                   className="bg-blue-600 px-6 py-2 rounded-lg shadow-md hover:bg-blue-500"
-                  onClick={() => {
-                    Swal.fire("Info", "You can now edit your profile.", "info");
-                    setEditMode(true);
-                  }}
+                  onClick={handleEdit}
                 >
                   Edit
                 </button>
               ) : (
-                <button
-                  type="submit"
-                  className="bg-green-600 px-6 py-2 rounded-lg shadow-md hover:bg-green-500"
-                >
-                  Save Changes
-                </button>
+                <>
+                  <button
+                    type="submit"
+                    className="bg-green-600 px-6 py-2 rounded-lg shadow-md hover:bg-green-500"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-gray-500 px-6 py-2 rounded-lg shadow-md hover:bg-gray-400"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </>
               )}
               <button
                 type="button"

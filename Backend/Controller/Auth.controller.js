@@ -122,3 +122,32 @@ export const logoutUser = (req, res) => {
       .json({ success: false, message: "Logout failed", error: error.message });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, email, mobile } = req.body;
+    const token = req.cookies.authToken;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update fields
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.mobile = mobile || user.mobile;
+
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update profile", error: error.message });
+  }
+};
