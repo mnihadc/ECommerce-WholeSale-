@@ -10,15 +10,6 @@ export const signUp = async (req, res) => {
     email = email.trim();
     mobile = mobile.trim();
 
-    // Password validation
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        message:
-          "Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character.",
-      });
-    }
-
     // Check if passwords match
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
