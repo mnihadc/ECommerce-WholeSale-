@@ -1,14 +1,21 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../Redux/user/userSlice";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import styles
+import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading } = useSelector((state) => state.user); // Get loading state
 
   // Handle input changes
   const handleChange = (e) => {
@@ -18,17 +25,23 @@ const Login = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(signInStart());
 
     try {
-      await axios.post("/api/auth/login", formData, { withCredentials: true }); // No need to store response
+      const { data } = await axios.post("/api/auth/login", formData, {
+        withCredentials: true,
+      });
 
+      dispatch(signInSuccess(data.user)); // Store user details in Redux
       toast.success("Login successful!");
-      navigate("/"); // Redirect after login
+      navigate("/");
     } catch (error) {
+      dispatch(
+        signInFailure(
+          error.response?.data?.message || "Invalid email or password"
+        )
+      );
       toast.error(error.response?.data?.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
     }
   };
 

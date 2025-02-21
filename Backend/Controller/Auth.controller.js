@@ -58,19 +58,26 @@ export const loginUser = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    // Generate JWT token (expires in 24 hours)
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, username: user.username, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
     // Store token in HTTP-only cookie
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ message: "Login successful", token });
+    // Send user data along with token
+    res.status(200).json({
+      message: "Login successful",
+      user: { id: user._id, username: user.username, email: user.email },
+      token,
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
