@@ -1,12 +1,13 @@
 import Banner from "../Components/Banner";
 import CategorySection from "../Components/CategorySection";
+import ProductList from "../Components/Product";
 
 function Home() {
   return (
     <div>
       <Banner />
       <CategorySection />
-      <h1 className="">Home Page</h1>
+      <ProductList />
     </div>
   );
 }
