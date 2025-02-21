@@ -6,18 +6,23 @@ import SignUp from "./Pages/SignUp";
 import Login from "./Pages/Login";
 import Profile from "./Pages/Profile";
 import PrivateRoute from "./Components/PrivateRoute";
+import CreateDeliveryAddress from "./Pages/CreateDeliveryAddress";
 
 function App() {
   return (
     <BrowserRouter>
       <Header />
-      <div className="pt-15">
+      <div className="pt-15 pb-2">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/create-delivery-address"
+              element={<CreateDeliveryAddress />}
+            />
           </Route>
         </Routes>
       </div>
