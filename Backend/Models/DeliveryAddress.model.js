@@ -74,6 +74,10 @@ const deliveryAddressSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    nowSelected: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
