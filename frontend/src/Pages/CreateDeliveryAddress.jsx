@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { LoadScript, Autocomplete } from "@react-google-maps/api";
 
 const governorates = [
   "Muscat",
@@ -19,9 +18,8 @@ const governorates = [
 ];
 
 const CreateDeliveryAddress = () => {
-  const [autocomplete, setAutocomplete] = useState(null);
-  const [location, setLocation] = useState("");
-  const [mapUrl, setMapUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const formik = useFormik({
     initialValues: {
@@ -47,37 +45,47 @@ const CreateDeliveryAddress = () => {
       city: Yup.string().required("City is required"),
       streetAddress: Yup.string().required("Street Address is required"),
       paymentMethod: Yup.string().required("Payment Method is required"),
+      googleMapLocation: Yup.string().url("Enter a valid Google Maps URL"),
     }),
     onSubmit: async (values, { resetForm }) => {
+      setLoading(true);
+      setMessage({ type: "", text: "" });
+
       try {
-        await axios.post("/api/delivery-address", values);
-        alert("Delivery Address Created Successfully!");
+        const response = await axios.post("/api/auth/delivery-address", values);
+        setMessage({
+          type: "success",
+          text: "Delivery Address Created Successfully!",
+        });
         resetForm();
       } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Failed to create delivery address. Please try again.",
+        });
         console.error("Error creating delivery address", error);
+      } finally {
+        setLoading(false);
       }
     },
   });
 
-  const handlePlaceSelect = () => {
-    if (autocomplete) {
-      const place = autocomplete.getPlace();
-      if (place.geometry) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        const formattedAddress = place.formatted_address;
-        setLocation(formattedAddress);
-        setMapUrl(`https://www.google.com/maps?q=${lat},${lng}`);
-        formik.setFieldValue("googleMapLocation", formattedAddress);
-      }
-    }
-  };
-
   return (
-    <div className="max-w-3xl mx-auto bg-gray-900 text-white shadow-lg rounded-lg p-8 mt-5 ">
+    <div className="max-w-3xl mx-auto bg-gray-900 text-white shadow-lg rounded-lg p-8 mt-5">
       <h2 className="text-3xl font-bold mb-6 text-center">
         Create Delivery Address
       </h2>
+
+      {message.text && (
+        <div
+          className={`mb-4 p-3 text-center rounded ${
+            message.type === "success" ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
       <form onSubmit={formik.handleSubmit} className="space-y-6">
         {[
           { name: "companyName", placeholder: "Company Name" },
@@ -86,61 +94,75 @@ const CreateDeliveryAddress = () => {
           { name: "city", placeholder: "City" },
           { name: "streetAddress", placeholder: "Street Address" },
           { name: "landmark", placeholder: "Landmark (Optional)" },
+          { name: "googleMapLocation", placeholder: "Google Maps URL" },
         ].map((field) => (
-          <input
-            key={field.name}
-            {...formik.getFieldProps(field.name)}
-            placeholder={field.placeholder}
-            className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div key={field.name}>
+            <input
+              {...formik.getFieldProps(field.name)}
+              placeholder={field.placeholder}
+              className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {formik.touched[field.name] && formik.errors[field.name] && (
+              <p className="text-red-400 text-sm mt-1">
+                {formik.errors[field.name]}
+              </p>
+            )}
+          </div>
         ))}
-        <select
-          {...formik.getFieldProps("governorate")}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select Governorate</option>
-          {governorates.map((gov) => (
-            <option key={gov} value={gov}>
-              {gov}
-            </option>
-          ))}
-        </select>
 
-        <input
-          type="text"
-          value={mapUrl}
-          onChange={(e) => setMapUrl(e.target.value)}
-          placeholder="Paste Google Maps URL here"
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div>
+          <select
+            {...formik.getFieldProps("governorate")}
+            className="w-full px-4 py-3 bg-gray-800 text-white rounded-md"
+          >
+            <option value="">Select Governorate</option>
+            {governorates.map((gov) => (
+              <option key={gov} value={gov}>
+                {gov}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <textarea
           {...formik.getFieldProps("deliveryInstructions")}
           placeholder="Delivery Instructions"
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md"
         />
-        <select
-          {...formik.getFieldProps("preferredDeliveryTime")}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="Morning">Morning</option>
-          <option value="Afternoon">Afternoon</option>
-          <option value="Evening">Evening</option>
-        </select>
-        <select
-          {...formik.getFieldProps("paymentMethod")}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Online Payment">Online Payment</option>
-        </select>
+
+        <div>
+          <select
+            {...formik.getFieldProps("preferredDeliveryTime")}
+            className="w-full px-4 py-3 bg-gray-800 text-white rounded-md"
+          >
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+            <option value="Evening">Evening</option>
+          </select>
+        </div>
+
+        <div>
+          <select
+            {...formik.getFieldProps("paymentMethod")}
+            className="w-full px-4 py-3 bg-gray-800 text-white rounded-md"
+          >
+            <option value="">Select Payment Method</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Online Payment">Online Payment</option>
+          </select>
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-600"
+          disabled={loading}
+          className={`w-full py-3 rounded-md font-semibold text-lg ${
+            loading
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
         >
-          Submit
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>

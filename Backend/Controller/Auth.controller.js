@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../Models/User.model.js";
 import jwt from "jsonwebtoken";
+import DeliveryAddress from "../Models/DeliveryAddress.model.js";
 
 export const signUp = async (req, res) => {
   try {
@@ -173,7 +174,8 @@ export const createDeliveryAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const newAddress = new DeliveryAddress(req.body);
+    // Attach userId to request body
+    const newAddress = new DeliveryAddress({ ...req.body, userId });
     await newAddress.save();
 
     res.status(201).json({
