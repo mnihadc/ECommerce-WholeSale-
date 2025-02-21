@@ -1,10 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-
+import authRoutes from "./Routes/Auth.route.js";
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 
 const port = process.env.PORT;
 
@@ -19,6 +20,7 @@ mongoose
   .catch((err) => {
     console.error("Error connecting to MongoDB:", err);
   });
+app.use("/api/auth", authRoutes);
 app.listen(port, () => {
   console.log(`Server is Running on port ${port}!!!`);
 });
