@@ -95,13 +95,22 @@ export const getUserProfile = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
-    const user = await User.findById(userId).select("-password");
 
+    // Fetch user data excluding the password
+    const user = await User.findById(userId).select("-password").lean();
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json(user);
+
+    // Fetch the selected delivery address
+    const selectedAddress = await DeliveryAddress.findOne({
+      userId,
+      nowSelected: true, // Ensure this flag determines the active address
+    }).lean();
+
+    res.status(200).json({ ...user, selectedAddress });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
